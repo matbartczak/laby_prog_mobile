@@ -12,7 +12,7 @@ export default function App() {
       <Text style={styles.paragraph}>
       </Text>
       <Card>
-        <StudentCard name='Mateusz' surname='Bartczak'/>
+        <StudentCard name='Mateusz' surname='Bartczak' student_id={169056}/>
       </Card>
     </View>
   );
