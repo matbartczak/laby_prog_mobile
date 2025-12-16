@@ -14,21 +14,19 @@ export default function ActionButton() {
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
-    // --- Get phone location on mount ---
-    useEffect(() => {
-      (async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert("Permission Denied", "Location permission is required.");
+        return;
+      }
 
-        if (status !== 'granted') {
-          Alert.alert("Permission Denied", "Location permission is required.");
-          return;
-        }
-
-        const loc = await Location.getCurrentPositionAsync({});
-        setLocation(loc);
-      })();
-    }, []);
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
+    })();
+  }, []);
 
   const onPressIn = () => {
     Animated.spring(scaleAnim, {
@@ -44,7 +42,6 @@ export default function ActionButton() {
       tension: 10,
       useNativeDriver: true,
     }).start(() => {
-      // ✅ Run your alert after animation finishes
       
       const lat = location?.coords?.latitude;
       const lon = location?.coords?.longitude;
