@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { Button, Text, TouchableOpacity, View,StyleSheet,Image } from 'react-native';
 import type { ParsedProduct } from './ProductData';
 import DisplayProductData from './ProductData';
+import { Platform } from 'react-native';
 
 
 
@@ -66,19 +67,37 @@ export default function Cam({ onClose }: { onClose: () => void })  {
 }
 
 
-  if (!permission) {
-    return <View />;
-  }
+if (!permission) {
+  // Permission object is still loading
+  return (
+    <View style={styles.container}>
+      <Text>Loading camera permissions...</Text>
+    </View>
+  );
+}
 
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
-  }
+if (!permission.granted) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.message}>
+        Camera access is required to scan barcodes
+      </Text>
 
+      <Button
+        title="Grant camera permission"
+        onPress={async () => {
+          const result = await requestPermission();
+
+          if (!result.granted && Platform.OS === 'android') {
+            alert(
+              'Camera permission denied.\nPlease enable it in system settings.'
+            );
+          }
+        }}
+      />
+    </View>
+  );
+}
 
   return (
   <View style={styles.container}>
