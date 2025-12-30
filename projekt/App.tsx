@@ -1,34 +1,22 @@
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-
-// or any files within the Snack
+import React from 'react';
+import { StyleSheet, ImageBackground } from 'react-native';
 import ActionButton from './components/ActionButton';
-
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.paragraph}>
-      </Text>
-        <ActionButton/>
-    </View>
+    <ImageBackground
+      source={require('./assets/main_page.png')}
+      style={styles.background}
+      resizeMode="cover"
+      imageStyle={{ opacity: 0.5 }}
+    >
+      <ActionButton />
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#ecf0f1',
-    padding: 8,
-  },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
-
-
-
