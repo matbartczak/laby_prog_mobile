@@ -1,26 +1,20 @@
-import {Animated,View,Text,StyleSheet, Alert,TouchableOpacity, Linking  } from 'react-native';
-import React, { useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
 import Cam from './Camera';
-import { initDatabase, deleteAllProducts } from './ProductDatabase'
-import SavedProductsList from './SavedProductsList'
-
-
-
-const sendSMS = (phoneNumber : string, 
-                message : string) => {
-    const url = `sms:${phoneNumber}?body=${encodeURIComponent(message)}`;
-    Linking.openURL(url);
-  };
+import { initDatabase } from './ProductDatabase';
+import SavedProductsList from './SavedProductsList';
 
 export default function ActionButton() {
-
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [showList, setShowList] = useState(false);
-  
+
   useEffect(() => {
     initDatabase();
   }, []);
@@ -28,81 +22,54 @@ export default function ActionButton() {
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-
       if (status !== 'granted') {
-        Alert.alert("Permission Denied", "Location permission is required.");
-        return;
+        Alert.alert('Permission Denied');
       }
-
-      const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
     })();
   }, []);
-  
 
+  if (showCamera) {
+    return <Cam onClose={() => setShowCamera(false)} />;
+  }
 
-  const onPress = () => {
-      
-      setShowCamera(true);
-      /* const lat = location?.coords?.latitude;
-      const lon = location?.coords?.longitude;
-
-      const msg = location
-        ? `Current location:\nLatitude: ${lat}\nLongitude: ${lon}`
-        : "Location not available";
-      sendSMS("690190820", msg) */
-  };
-    const onPressList = () => {
-      //deleteAllProducts()
-      setShowList(true);
-      //getTodayProducts()
-    };
+  if (showList) {
+    return <SavedProductsList onClose={() => setShowList(false)} />;
+  }
 
   return (
-  <>
-      {showCamera ? (
-        <Cam onClose={() => setShowCamera(false)} />
-      ) : showList ? (
-        <View style={{ flex: 1 }}>
-          <SavedProductsList />
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={[styles.button, styles.scan]}
+        onPress={() => setShowCamera(true)}
+      >
+        <Text style={styles.text}>Skanowanie</Text>
+      </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.buttonContainer, { alignSelf: 'center', marginTop: 16 }]}
-            onPress={() => setShowList(false)}
-          >
-            <Text style={styles.buttonText}>Cofnij</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.previewButtons}>
-          <TouchableOpacity style={styles.buttonContainer} onPress={onPress}>
-            <Text style={styles.buttonText}>Skanowanie</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.buttonContainer} onPress={onPressList}>
-            <Text style={styles.buttonText}>Dane</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </>
-);}
+      <TouchableOpacity
+        style={[styles.button, styles.data]}
+        onPress={() => setShowList(true)}
+      >
+        <Text style={styles.text}>Dane</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  previewButtons: {
-
-    flexDirection: 'column',
-    gap: 16,
-  },
-  buttonContainer: {
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingBottom: 180,
     alignItems: 'center',
-    backgroundColor: '#4a4a4aff',
-    borderRadius: 25,
-    marginHorizontal: 5,
-    padding: 10,
+    gap: 20,
   },
-  buttonText: {
-    color: '#ffffffff',
-    fontSize: 15,
-    fontWeight: 'bold',
-  }
-})
+  button: {
+    width: 280,
+    paddingVertical: 14,
+    borderRadius: 25,
+    alignItems: 'center',
+  },
+  scan: { backgroundColor: '#66BB6A' },
+  data: { backgroundColor: '#90A4AE' },
+  text: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+});
